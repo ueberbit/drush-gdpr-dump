@@ -1,0 +1,36 @@
+# https://github.com/Smile-SA/gdpr-dump/wiki/Configuration-File
+extends: 'drupal8'
+
+tables:
+  authmap:
+    truncate: true
+
+  batch:
+    truncate: true
+
+  captcha_sessions:
+    truncate: true
+
+  comment_field_data:
+    converters:
+      hostname:
+        converter: 'setNull'
+
+  users_data:
+    where: 'module <> "openid_connect" and name <> "oidc_name"'
+
+  users_field_data:
+    converters:
+      mail:
+        converter: 'randomizeEmail'
+        unique: true
+      pass:
+        converter: 'randomizeText'
+      init:
+        converter: 'setNull'
+
+    # Skip anonymization for users registered with example.com email domain.
+    skip_conversion_if: 'str_ends_with((string) {{mail}}, "@example.com")'
+
+  watchdog:
+    truncate: true

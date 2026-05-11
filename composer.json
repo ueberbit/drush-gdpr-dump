@@ -1,0 +1,13 @@
+{
+  "name": "ueberbit/drush-gdpr-dump",
+  "type": "drupal-drush",
+  "autoload": {
+    "psr-4": {
+      "Ueberbit\\DrushGdprDump\\": "src/"
+    }
+  },
+  "require": {
+    "drush/drush": "^13.3",
+    "smile/gdpr-dump": "^5.x-dev"
+  }
+}
