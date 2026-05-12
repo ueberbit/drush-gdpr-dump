@@ -7,7 +7,7 @@
     }
   },
   "require": {
-    "drush/drush": "^13.3",
+    "drush/drush": "^13.7.3",
     "smile/gdpr-dump": "^5.x-dev"
   }
 }

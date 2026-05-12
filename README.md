@@ -20,7 +20,7 @@ See https://github.com/Smile-SA/gdpr-dump/pull/200 for more details.
 
 ### Patch for Drush
 
-~~https://github.com/drush-ops/drush/pull/6524~~ committed to drush 13.x - no stable release yet.
+~~https://github.com/drush-ops/drush/pull/6524~~ committed to drush 13.x - released in [13.7.3](https://github.com/drush-ops/drush/releases/tag/13.7.3)
 
 ## Installation
 
