@@ -54,7 +54,7 @@ final class GdprDumpDrushCommand extends Command {
       if (file_exists($composerRoot . '/gdpr-config.yaml')) {
         $options['config'] = $composerRoot . '/gdpr-config.yaml';
       }
-      elseif (file_exists($composerRoot . '/gdpr-config.yaml')) {
+      elseif (file_exists($composerRoot . '/drush/gdpr-config.yaml')) {
         $options['config'] = $composerRoot . '/drush/gdpr-config.yaml';
       }
     }
