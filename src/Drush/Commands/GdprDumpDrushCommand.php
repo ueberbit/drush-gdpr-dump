@@ -8,9 +8,11 @@ use DrupalFinder\DrupalFinderComposerRuntime;
 use Drush\Attributes as CLI;
 use Drush\Boot\DrupalBootLevels;
 use Drush\Commands\AutowireTrait;
+use Drush\Config\ConfigAwareTrait;
 use Drush\SiteAlias\ProcessManager;
 use Drush\Sql\SqlBase;
 use Drush\Sql\SqlMysql;
+use Robo\Contract\ConfigAwareInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,9 +26,10 @@ use Symfony\Component\Process\Process;
 )]
 #[CLI\Bootstrap(DrupalBootLevels::CONFIGURATION)]
 #[CLI\OptionsetSql]
-final class GdprDumpDrushCommand extends Command {
+final class GdprDumpDrushCommand extends Command implements ConfigAwareInterface {
 
   use AutowireTrait;
+  use ConfigAwareTrait;
 
   public const string NAME = 'gdpr:dump';
 
@@ -71,7 +74,6 @@ final class GdprDumpDrushCommand extends Command {
       throw new \RuntimeException('Database driver not supported.');
     }
 
-    $foo = $sql->getDbSpec();
     $parameters = $this->convertCommandLineParameters(explode(' ', $sql->creds(FALSE)));
 
     $cmd = [$binary];
@@ -107,6 +109,22 @@ final class GdprDumpDrushCommand extends Command {
       $output->writeln(sprintf('Database dump saved to %s', $resultFile));
     }
     else {
+      if ($input->getOption('gzip')) {
+        // See https://github.com/drush-ops/drush/issues/3816.
+        $pipefail = $this->getConfig()->get('sh.pipefail', 'bash -c "set -o pipefail; {{cmd}}"');
+        if (!is_string($pipefail)) {
+          throw new \RuntimeException('Config option sh.pipefail must be a string.');
+        }
+        $shellCmd = implode(' ', array_map('escapeshellarg', $cmd)) . ' | gzip -f';
+        // SqlBase::addPipeFail() is protected; bind a closure to its scope.
+        $addPipeFail = \Closure::bind(
+          fn (string $cmd, string $pipefail): string => $this->addPipeFail($cmd, $pipefail),
+          $sql,
+          SqlBase::class,
+        );
+        $process = $this->processManager->shell($addPipeFail($shellCmd, $pipefail));
+      }
+
       $process->mustRun($process->showRealtime());
     }
 
